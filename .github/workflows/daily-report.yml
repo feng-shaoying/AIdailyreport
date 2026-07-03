@@ -1,0 +1,39 @@
+name: AI日报自动生成
+
+on:
+  schedule:
+    # 北京时间 8:30 = UTC 0:30
+    - cron: '30 0 * * *'
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: 生成AI日报
+        env:
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+        run: node generate-report.js --now
+
+      - name: 提交日报到仓库
+        run: |
+          git config user.name "AI日报机器人"
+          git config user.email "aidaily@github.com"
+          git add *.md
+          if git diff --staged --quiet; then
+            echo "没有新日报，跳过提交"
+          else
+            git commit -m "📰 $(date +%Y%m%d) AI日报自动生成"
+            git push
+          fi

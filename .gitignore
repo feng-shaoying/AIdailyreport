@@ -1,0 +1,10 @@
+node_modules/
+.env
+*.bak
+*.bat
+*.ps1
+*.vbs
+generate-daily-report.*
+setup-scheduler.ps1
+start-scheduler.vbs
+一键生成日报.bat
